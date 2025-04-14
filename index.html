@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Santo Rosario</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap');
+    body {
+      font-family: 'EB Garamond', serif;
+      background-color: #fff;
+      color: #222;
+      padding: 1.5rem;
+      max-width: 700px;
+      margin: auto;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+    .btn {
+      background-color: #f2f2f2;
+      border: 1px solid #ccc;
+      padding: 0.6rem 1.2rem;
+      margin: 0.4rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #e0e0e0;
+    }
+    .hidden {
+      display: none;
+    }
+    .content {
+      margin-top: 1rem;
+      background: #f9f9f9;
+      border-left: 5px solid #ccc;
+      padding: 1rem;
+      white-space: pre-wrap;
+    }
+    .day-selector {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Santo Rosario</h1>
+<div id="intro-text" style="text-align: center; font-style: italic; margin-bottom: 2rem;">
+  El Rosario es una oración contemplativa que nos lleva a meditar los misterios de la vida, pasión, muerte y resurrección de Jesucristo, vistos a través del corazón de su Madre, la Virgen María.
+</div>
+  <div class="day-selector" id="dia-selector">
+    <p>Selecciona el día:</p>
+    <button class="btn" onclick="iniciarRosario('Lu')">Lunes</button>
+    <button class="btn" onclick="iniciarRosario('Ma')">Martes</button>
+    <button class="btn" onclick="iniciarRosario('Mi')">Miércoles</button>
+    <button class="btn" onclick="iniciarRosario('Ju')">Jueves</button>
+    <button class="btn" onclick="iniciarRosario('Vi')">Viernes</button>
+    <button class="btn" onclick="iniciarRosario('Sa')">Sábado</button>
+    <button class="btn" onclick="iniciarRosario('Do')">Domingo</button>
+  </div>
+  <div id="contenedor" class="hidden">
+    <h2 id="titulo"></h2>
+    <div id="texto" class="content"></div>
+    <div style="text-align: center;">
+      <button class="btn" onclick="pasoAnterior()">Anterior</button>
+      <button class="btn" onclick="pasoSiguiente()">Siguiente</button>
+      <button class="btn" onclick="verLetanias()">Ver Letanías</button>
+      <button class="btn" onclick="reiniciar()">Volver al inicio</button>
+    </div>
+  </div>
+  <script>
+    const misteriosGozosos = [
+  { titulo: 'Primer Misterio Gozoso', texto: 'La Anunciación del Ángel a María (Lucas 1, 26-38)\nEl ángel Gabriel anuncia a María que será la Madre del Salvador. Ella acepta con humildad y fe.' },
+  { titulo: 'Segundo Misterio Gozoso', texto: 'La Visitación de María a su prima Isabel (Lucas 1, 39-56)\nMaría visita a Isabel, quien la reconoce como la Madre del Señor. María proclama el Magnificat.' },
+  { titulo: 'Tercer Misterio Gozoso', texto: 'El Nacimiento de Jesús en Belén (Lucas 2, 1-7)\nMaría da a luz a Jesús en un pesebre. Dios se hace hombre en la humildad y pobreza.' },
+  { titulo: 'Cuarto Misterio Gozoso', texto: 'La Presentación del Niño Jesús en el Templo (Lucas 2, 22-38)\nMaría y José presentan a Jesús. Simeón profetiza que será luz para los pueblos.' },
+  { titulo: 'Quinto Misterio Gozoso', texto: 'El Niño Jesús perdido y hallado en el Templo (Lucas 2, 41-50)\nJesús se queda en el templo y es hallado por sus padres enseñando a los doctores de la ley.' }
+];
+
+const misteriosDolorosos = [
+  { titulo: 'Primer Misterio Doloroso', texto: 'La Oración de Jesús en el Huerto (Lucas 22, 39-46)\nJesús ora angustiado en Getsemaní y acepta la voluntad del Padre.' },
+  { titulo: 'Segundo Misterio Doloroso', texto: 'La Flagelación de Jesús (Juan 19, 1)\nJesús es azotado brutalmente en expiación por nuestros pecados.' },
+  { titulo: 'Tercer Misterio Doloroso', texto: 'La Coronación de espinas (Mateo 27, 29-30)\nJesús es coronado con espinas y escarnecido como Rey.' },
+  { titulo: 'Cuarto Misterio Doloroso', texto: 'Jesús con la cruz a cuestas (Juan 19, 17)\nJesús carga su cruz camino al Calvario. Cae y se levanta por amor.' },
+  { titulo: 'Quinto Misterio Doloroso', texto: 'La Crucifixión y Muerte de Jesús (Lucas 23, 33-46)\nJesús es crucificado y entrega su espíritu al Padre.' }
+];
+
+const misteriosGloriosos = [
+  { titulo: 'Primer Misterio Glorioso', texto: 'La Resurrección del Señor (Mateo 28, 1-10)\nJesús resucita glorioso venciendo la muerte. Las mujeres lo encuentran vivo.' },
+  { titulo: 'Segundo Misterio Glorioso', texto: 'La Ascensión del Señor al cielo (Lucas 24, 50-53)\nJesús asciende al cielo y promete el Espíritu Santo.' },
+  { titulo: 'Tercer Misterio Glorioso', texto: 'La Venida del Espíritu Santo (Hechos 2, 1-4)\nEl Espíritu Santo desciende sobre los Apóstoles en Pentecostés.' },
+  { titulo: 'Cuarto Misterio Glorioso', texto: 'La Asunción de María al cielo (Apocalipsis 12, 1 – Tradición)\nMaría es llevada al cielo en cuerpo y alma.' },
+  { titulo: 'Quinto Misterio Glorioso', texto: 'La Coronación de la Virgen María como Reina (Apocalipsis 12, 1 – Tradición)\nMaría es coronada como Reina del cielo y de la tierra.' }
+];
+
+const misteriosLuminosos = [
+  { titulo: 'Primer Misterio Luminoso', texto: 'El Bautismo de Jesús en el Jordán (Mateo 3, 13-17)\nJesús es bautizado por Juan. El Espíritu Santo desciende y el Padre lo declara su Hijo amado.' },
+  { titulo: 'Segundo Misterio Luminoso', texto: 'Las bodas de Caná (Juan 2, 1-12)\nJesús convierte el agua en vino por intercesión de María. Es el primer milagro público.' },
+  { titulo: 'Tercer Misterio Luminoso', texto: 'El anuncio del Reino de Dios (Marcos 1, 14-15)\nJesús proclama la llegada del Reino e invita a la conversión.' },
+  { titulo: 'Cuarto Misterio Luminoso', texto: 'La Transfiguración del Señor (Lucas 9, 28-36)\nJesús se transfigura y muestra su gloria a Pedro, Santiago y Juan.' },
+  { titulo: 'Quinto Misterio Luminoso', texto: 'La institución de la Eucaristía (Lucas 22, 14-20)\nEn la Última Cena, Jesús se entrega en el pan y el vino como su Cuerpo y Sangre.' }
+];
+    const misteriosPorDia = {
+      'Lu': misteriosGozosos,
+      'Ma': misteriosDolorosos,
+      'Mi': misteriosGloriosos,
+      'Ju': misteriosLuminosos,
+      'Vi': misteriosDolorosos,
+      'Sa': misteriosGozosos,
+      'Do': misteriosGloriosos
+    };
+
+    const oracionesEntreMisterios = [
+      { titulo: 'Padre Nuestro', texto: 'Padre nuestro que estás en el cielo, santificado sea tu Nombre; venga a nosotros tu Reino; hágase tu voluntad en la tierra como en el cielo. Danos hoy nuestro pan de cada día; perdona nuestras ofensas, como también nosotros perdonamos a los que nos ofenden; no nos dejes caer en la tentación, y líbranos del mal. Amén.' },
+      { titulo: 'Ave María x10', texto: 'Dios te salve, María, llena eres de gracia, el Señor es contigo. Bendita tú eres entre todas las mujeres y bendito es el fruto de tu vientre, Jesús. Santa María, Madre de Dios, ruega por nosotros, pecadores, ahora y en la hora de nuestra muerte. Amén.' },
+      { titulo: 'Gloria y Jaculatoria', texto: 'Gloria al Padre, y al Hijo y al Espíritu Santo. Como era en el principio, ahora y siempre, por los siglos de los siglos. Amén.\nOh Jesús mío, perdona nuestros pecados, líbranos del fuego del infierno, lleva al cielo a todas las almas, especialmente a las más necesitadas de tu misericordia. Amén.' },
+      { titulo: 'María, Madre de Gracia', texto: 'María, Madre de gracia, Madre de misericordia, en la vida y en la muerte ampáranos, gran Señora.' }
+    ];
+
+    const oracionesFinales = [
+      { titulo: 'Padre Nuestro', texto: 'Padre nuestro que estás en el cielo, santificado sea tu Nombre; venga a nosotros tu Reino; hágase tu voluntad en la tierra como en el cielo. Danos hoy nuestro pan de cada día; perdona nuestras ofensas, como también nosotros perdonamos a los que nos ofenden; no nos dejes caer en la tentación, y líbranos del mal. Amén.' },
+      { titulo: 'Ave María x3', texto: 'Dios te salve, María, llena eres de gracia, el Señor es contigo. Bendita tú eres entre todas las mujeres y bendito es el fruto de tu vientre, Jesús. Santa María, Madre de Dios, ruega por nosotros, pecadores, ahora y en la hora de nuestra muerte. Amén.' },
+      { titulo: 'Gloria al Padre', texto: 'Gloria al Padre, y al Hijo y al Espíritu Santo. Como era en el principio, ahora y siempre, por los siglos de los siglos. Amén.' },
+      { titulo: 'Dios te salve, María Trinitaria', texto: 'Dios te salve, María, Hija de Dios Padre, en tus manos encomendamos nuestra fe, para que la ilumines. Llena eres de gracia, el Señor es contigo; bendita tú eres entre todas las mujeres, y bendito es el fruto de tu vientre, Jesús. Santa María, Madre de Dios Hijo y Madre nuestra, en tus manos encomendamos nuestra esperanza. Ruega por nosotros los pecadores, ahora y en la hora de nuestra muerte. Amén. Dios te salve, María, Esposa del Espíritu Santo, en tus manos encomendamos nuestro amor, para que lo inflames. Llena eres de gracia, el Señor es contigo; bendita tú eres entre todas las mujeres, y bendito es el fruto de tu vientre, Jesús. Santa María, Madre de Dios, ruega por nosotros, pecadores, ahora y en la hora de nuestra muerte. Amén.' },
+      { titulo: 'Dios te salve, Reina y Madre', texto: 'Dios te salve, Reina y Madre de misericordia, vida, dulzura y esperanza nuestra, Dios te salve. A Ti llamamos los desterrados hijos de Eva; a Ti suspiramos, gimiendo y llorando en este valle de lágrimas. Ea, pues, Señora, abogada nuestra, vuelve a nosotros esos tus ojos misericordiosos; y después de este destierro, muéstranos a Jesús, fruto bendito de tu vientre. ¡Oh clemente, oh piadosa, oh dulce Virgen María! Ruega por nosotros, Santa Madre de Dios, para que seamos dignos de alcanzar las promesas de Nuestro Señor Jesucristo. Amén.' }
+    ];
+
+    let pasos = [];
+    let pasoActual = 0;
+
+    function mostrarPaso() {
+  const paso = pasos[pasoActual];
+  document.getElementById('titulo').innerText = paso.titulo;
+  const texto = document.getElementById('texto');
+  texto.innerText = paso.texto;
+
+  if (paso.esFinal) {
+    texto.style.fontStyle = 'italic';
+    texto.style.textAlign = 'center';
+    texto.style.fontSize = '1.2rem';
+    texto.style.background = '#fdf8f2';
+    texto.style.borderLeft = '5px solid #999';
+    texto.style.color = '#333';
+  } else {
+    texto.removeAttribute('style');
+    texto.className = 'content';
+  }
+}
+
+    function pasoSiguiente() {
+      if (pasoActual < pasos.length - 1) {
+        pasoActual++;
+        mostrarPaso();
+      }
+    }
+
+    function pasoAnterior() {
+      if (pasoActual > 0) {
+        pasoActual--;
+        mostrarPaso();
+      }
+    }
+
+    function reiniciar() {
+      pasoActual = 0;
+      document.getElementById('contenedor').classList.add('hidden');
+  document.getElementById('intro-text').classList.remove('hidden');
+      document.getElementById('dia-selector').classList.remove('hidden');
+    }
+
+   function verLetanias() {
+  const letaniasTexto = `
+Señor, ten piedad de nosotros.
+Cristo, ten piedad de nosotros.
+Señor, ten piedad de nosotros.
+Cristo, óyenos.
+Cristo, escúchanos.
+Dios Padre celestial, ten piedad de nosotros.
+Dios Hijo, Redentor del mundo, ten piedad de nosotros.
+Dios Espíritu Santo, ten piedad de nosotros.
+Santísima Trinidad, un solo Dios, ten piedad de nosotros.
+
+Santa María, ruega por nosotros.
+Santa Madre de Dios, ruega por nosotros.
+Santa Virgen de las vírgenes, ruega por nosotros.
+Madre de Cristo, ruega por nosotros.
+Madre de la Iglesia, ruega por nosotros.
+Madre de la divina gracia, ruega por nosotros.
+Madre purísima, ruega por nosotros.
+Madre castísima, ruega por nosotros.
+Madre siempre virgen, ruega por nosotros.
+Madre inmaculada, ruega por nosotros.
+Madre amable, ruega por nosotros.
+Madre admirable, ruega por nosotros.
+Madre del buen consejo, ruega por nosotros.
+Madre del Creador, ruega por nosotros.
+Madre del Salvador, ruega por nosotros.
+Virgen prudentísima, ruega por nosotros.
+Virgen digna de veneración, ruega por nosotros.
+Virgen digna de alabanza, ruega por nosotros.
+Virgen poderosa, ruega por nosotros.
+Virgen clemente, ruega por nosotros.
+Virgen fiel, ruega por nosotros.
+Espejo de justicia, ruega por nosotros.
+Trono de la sabiduría, ruega por nosotros.
+Causa de nuestra alegría, ruega por nosotros.
+Vaso espiritual, ruega por nosotros.
+Vaso digno de honor, ruega por nosotros.
+Vaso insigne de devoción, ruega por nosotros.
+Rosa mística, ruega por nosotros.
+Torre de David, ruega por nosotros.
+Torre de marfil, ruega por nosotros.
+Casa de oro, ruega por nosotros.
+Arca de la alianza, ruega por nosotros.
+Puerta del cielo, ruega por nosotros.
+Estrella de la mañana, ruega por nosotros.
+Salud de los enfermos, ruega por nosotros.
+Refugio de los pecadores, ruega por nosotros.
+Consuelo de los migrantes, ruega por nosotros.
+Consoladora de los afligidos, ruega por nosotros.
+Auxilio de los cristianos, ruega por nosotros.
+Reina de los ángeles, ruega por nosotros.
+Reina de los patriarcas, ruega por nosotros.
+Reina de los profetas, ruega por nosotros.
+Reina de los apóstoles, ruega por nosotros.
+Reina de los mártires, ruega por nosotros.
+Reina de los confesores, ruega por nosotros.
+Reina de las vírgenes, ruega por nosotros.
+Reina de todos los santos, ruega por nosotros.
+Reina concebida sin pecado original, ruega por nosotros.
+Reina llevada al cielo, ruega por nosotros.
+Reina del santísimo Rosario, ruega por nosotros.
+Reina de la familia, ruega por nosotros.
+Reina de la paz, ruega por nosotros.
+
+Cordero de Dios, que quitas el pecado del mundo, perdónanos Señor.
+Cordero de Dios, que quitas el pecado del mundo, escúchanos Señor.
+Cordero de Dios, que quitas el pecado del mundo, ten piedad de nosotros.
+
+Ruega por nosotros, Santa Madre de Dios.
+Para que seamos dignos de alcanzar las promesas de Nuestro Señor Jesucristo. Amén.
+  `;
+
+  pasos.push({ titulo: 'Letanías de la Virgen', texto: letaniasTexto });
+  pasoActual = pasos.length - 1;
+  mostrarPaso();
+}
+
+    function iniciarRosario(dia) {
+      const misterios = misteriosPorDia[dia];
+      pasos = [
+        { titulo: 'Oración Inicial', texto: 'Por la señal de la Santa Cruz, de nuestros enemigos líbranos, Señor, Dios nuestro. En el nombre del Padre, y del Hijo, y del Espíritu Santo. Amén.' },
+        { titulo: 'Invocación de apertura', texto: 'Abre, Señor, mis labios para alabar tu nombre y el de tu Santa Madre.' },
+        { titulo: 'Acto de Contrición', texto: 'Señor mío Jesucristo, Dios y Hombre verdadero, Creador y Redentor mío, por ser Tú quien eres y porque te amo sobre todas las cosas, me pesa de todo corazón haberte ofendido. Quiero y propongo firmemente confesarme a su tiempo. Ofrezco mi vida, obras y trabajos en satisfacción de mis pecados y confío en que en tu bondad y misericordia infinita me los perdonarás y me darás la gracia para no volver a ofenderte. Amén.' },
+ { 
+    titulo: 'Credo de los Apóstoles',
+    texto: `Creo en Dios Padre Todopoderoso,
+Creador del cielo y de la tierra;
+y en Jesucristo, su único Hijo, Señor nuestro;
+que fue concebido del Espíritu Santo,
+nació de la virgen María,
+padeció bajo el poder de Poncio Pilatos;
+fue crucificado, muerto y sepultado;
+descendió a los infiernos;
+al tercer día resucitó de entre los muertos;
+subió al cielo, y está sentado a la diestra de Dios Padre Todopoderoso;
+y desde allí vendrá al fin del mundo a juzgar a los vivos y a los muertos.
+
+Creo en el Espíritu Santo,
+la Santa Iglesia Universal,
+la comunión de los santos,
+el perdón de los pecados,
+la resurrección de la carne
+y la vida perdurable. Amén.` 
+  },
+        { titulo: 'Oración al Espíritu Santo', texto: 'Ven, Espíritu Santo, llena los corazones de tus fieles y enciende en ellos el fuego de tu amor. Envía tu Espíritu Creador y renueva la faz de la Tierra. Oh Dios, que has iluminado los corazones de tus hijos con la luz del Espíritu Santo, haznos dóciles a sus inspiraciones para gustar siempre del bien y gozar de su consuelo. Por Cristo nuestro Señor. Amén.' },
+        { titulo: 'Peticiones', texto: 'Haz un momento para ofrecer este Santo Rosario a una causa e incluye tus peticiones.' }
+      ];
+      misterios.forEach(misterio => {
+        pasos.push(misterio);
+        pasos = pasos.concat(oracionesEntreMisterios);
+      });
+      pasos = pasos.concat(oracionesFinales);
+pasos.push({
+  titulo: 'Envío Final',
+  texto: `Has meditado los Misterios del Amor de Dios. Ahora, sé reflejo de ese amor. Que tu vida sea un Rosario vivo, lleno de fe, esperanza y caridad. Comparte lo que has recibido.\n\nCRUX SACRA SIT MIHI LUX . NON DRACO SIT MIHI DUX. VADE RETRO SATANA`,
+  esFinal: true
+});
+      pasoActual = 0;
+      document.getElementById('dia-selector').classList.add('hidden');
+document.getElementById('intro-text').classList.add('hidden');
+      document.getElementById('contenedor').classList.remove('hidden');
+      mostrarPaso();
+    }
+  </script>
+</body>
+</html>
